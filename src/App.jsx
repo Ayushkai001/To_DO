@@ -228,7 +228,7 @@ const App = () => {
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className={`p-0 w-10 h-10 rounded-xl overflow-hidden ${isDND ? 'opacity-30' : ''}`}>
-              <img src="/src/assets/logo.png" alt="To Do Logo" className="w-full h-full object-cover" />
+              <img src="/logo.svg" alt="To Do Logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <h1 className={`font-semibold tracking-tight text-lg leading-none font-['Outfit'] ${textPrimary}`}>
