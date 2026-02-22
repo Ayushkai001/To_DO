@@ -106,7 +106,7 @@ const App = () => {
       notes: "",
       lastReviewed: new Date().toISOString(),
       intervalStep: 0,
-      nextReview: new Date(Date.now() + 86400000).toISOString() // Default 1 day
+      nextReview: new Date().toISOString() // Due immediately for "Today's Review"
     };
     setTopics([newTopic, ...topics]);
     setNewTopicTitle('');
@@ -176,14 +176,14 @@ const App = () => {
 
   // --- Derived State ---
   const dueTodayCount = useMemo(() => {
-    return topics.filter(t => new Date(t.nextReview) <= new Date() && !t.completed).length;
+    return topics.filter(t => new Date(t.nextReview) <= new Date()).length;
   }, [topics]);
 
   const filteredTopics = useMemo(() => {
     let result = topics;
 
     if (filter === 'today') {
-      result = topics.filter(t => new Date(t.nextReview) <= new Date() && !t.completed);
+      result = topics.filter(t => new Date(t.nextReview) <= new Date());
     } else if (activeSubject) {
       result = topics.filter(t => t.subjectId === activeSubject.id);
     }
@@ -492,14 +492,14 @@ const App = () => {
                     className={`group relative flex flex-col p-0 rounded-2xl border backdrop-blur-md transition-all duration-300 overflow-hidden ${glassCard} ${topic.isPriority ? 'ring-2 ring-amber-500/30' : ''}`}
                   >
                     {/* Status Indicator Bar */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors ${topic.completed ? 'bg-emerald-500/50' : isDue ? 'bg-amber-500/80 shadow-[0_0_10px_orange]' : 'bg-slate-300/30'}`} />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 transition-colors ${!isDue && topic.completed ? 'bg-emerald-500/50' : isDue ? 'bg-amber-500/80 shadow-[0_0_10px_orange]' : 'bg-slate-300/30'}`} />
 
                     <div className="flex items-start gap-5 p-5">
                       <button
                         onClick={() => toggleTopic(topic.id)}
-                        className={`mt-1 transition-all duration-300 transform active:scale-95 ${topic.completed ? 'text-emerald-500' : 'text-slate-300 hover:text-indigo-400 dark:text-white/20 hover:dark:text-indigo-400'}`}
+                        className={`mt-1 transition-all duration-300 transform active:scale-95 ${!isDue && topic.completed ? 'text-emerald-500' : 'text-slate-300 hover:text-indigo-400 dark:text-white/20 hover:dark:text-indigo-400'}`}
                       >
-                        {topic.completed ? <CheckCircle2 size={26} className="fill-emerald-500/10" /> : <Circle size={26} strokeWidth={1.5} />}
+                        {!isDue && topic.completed ? <CheckCircle2 size={26} className="fill-emerald-500/10" /> : <Circle size={26} strokeWidth={1.5} />}
                       </button>
 
                       <div className="flex-1 min-w-0">
@@ -515,20 +515,20 @@ const App = () => {
                             }`}>
                             Level {topic.intervalStep}
                           </span>
-                          {isDue && !topic.completed && !isDND && (
+                          {isDue && !isDND && (
                             <span className="text-[9px] uppercase font-black text-amber-600 dark:text-amber-400 flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/20 animate-pulse font-['Outfit']">
                               <Zap size={10} fill="currentColor" /> Ready for Review
                             </span>
                           )}
                         </div>
-                        <h3 className={`font-semibold text-lg leading-snug transition-all font-['Outfit'] ${topic.completed ? 'line-through text-slate-400/50 decoration-slate-400/30' : textPrimary}`}>
+                        <h3 className={`font-semibold text-lg leading-snug transition-all font-['Outfit'] ${!isDue && topic.completed ? 'line-through text-slate-400/50 decoration-slate-400/30' : textPrimary}`}>
                           {topic.title}
                         </h3>
                         {!isDND && (
                           <div className={`flex items-center gap-4 mt-2.5 text-[11px] font-bold font-['Outfit'] ${textSecondary}`}>
-                            <span className={`flex items-center gap-1.5 transition-colors ${isDue && !topic.completed ? 'text-amber-600 dark:text-amber-400' : ''}`}>
+                            <span className={`flex items-center gap-1.5 transition-colors ${isDue ? 'text-amber-600 dark:text-amber-400' : ''}`}>
                               <Clock size={12} strokeWidth={3} />
-                              {isDue && !topic.completed ? 'Review Now' : `Next: ${new Date(topic.nextReview).toLocaleDateString()}`}
+                              {isDue ? 'Review Now' : `Next: ${new Date(topic.nextReview).toLocaleDateString()}`}
                             </span>
                             <span className="flex items-center gap-1.5 opacity-60">
                               <Zap size={12} strokeWidth={3} />
@@ -589,8 +589,8 @@ const App = () => {
               })
             )}
           </div>
-        </section>
-      </main>
+        </section >
+      </main >
 
       {/* DND Overlay Indicator - Floating Glass */}
       {
